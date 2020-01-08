@@ -15,6 +15,14 @@ void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+
+    frc::Color detectedColor = m_colorSensor.GetColor();m_colorMatcher.AddColorMatch(kBlueTarget);
+
+    m_colorMatcher.AddColorMatch(kGreenTarget);
+
+    m_colorMatcher.AddColorMatch(kRedTarget);
+
+    m_colorMatcher.AddColorMatch(kYellowTarget);
 }
 
 /**
@@ -61,7 +69,57 @@ void Robot::AutonomousPeriodic() {
 
 void Robot::TeleopInit() {}
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+
+  //void Robot::ColorPizza() {
+    frc::Color detectedColor = m_colorSensor.GetColor();
+
+
+
+    /**
+
+      * Run the color match algorithm on our detected color
+
+      */
+
+    std::string colorString;
+
+    double confidence = 0.0;
+
+    frc::Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
+
+
+
+    if (matchedColor == kBlueTarget) {
+
+      colorString = "Blue";
+
+    } else if (matchedColor == kRedTarget) {
+
+      colorString = "Red";
+
+    } else if (matchedColor == kGreenTarget) {
+
+      colorString = "Green";
+
+    } else if (matchedColor == kYellowTarget) {
+
+      colorString = "Yellow";
+
+    } else {
+
+      colorString = "Unknown";
+
+    }
+
+    frc::SmartDashboard::PutNumber("Detected color", colorString);
+
+
+
+  //}
+
+
+}
 
 void Robot::TestPeriodic() {}
 
