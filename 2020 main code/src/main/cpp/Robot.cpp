@@ -71,7 +71,11 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
 
-  //void Robot::ColorPizza() {
+ 
+
+}
+
+ void Robot::ColorPizza() {
     frc::Color detectedColor = m_colorSensor.GetColor();
 
 
@@ -112,14 +116,12 @@ void Robot::TeleopPeriodic() {
 
     }
 
-    frc::SmartDashboard::PutNumber("Detected color", colorString);
+    //frc::SmartDashboard::PutNumber("Detected color", colorString);
 
 
 
-  //}
+  }
 
-
-}
 
 void Robot::TestPeriodic() {}
 
