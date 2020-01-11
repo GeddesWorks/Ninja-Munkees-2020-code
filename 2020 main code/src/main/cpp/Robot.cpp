@@ -71,6 +71,7 @@ void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
 
+  ColorPizza();
  
 
 }
