@@ -116,7 +116,7 @@ void Robot::TeleopPeriodic() {
 
     }
 
-    //frc::SmartDashboard::PutNumber("Detected color", colorString);
+    frc::SmartDashboard::PutString("Detected color", colorString);
 
 
 
