@@ -72,7 +72,11 @@ void Robot::TeleopInit() {}
 void Robot::TeleopPeriodic() {
 
   ColorPizza();
- 
+  Drive();
+  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  double targetArea = table->GetNumber("ta",0.0);
+
+  frc::SmartDashboard::PutNumber("Target Area", targetArea);
 
 }
 
@@ -121,6 +125,37 @@ void Robot::TeleopPeriodic() {
 
 
 
+  }
+
+  void Robot::Drive() {
+    LBd = JLeft.GetY();
+    RBd = JRight.GetY();
+
+    //Left deadZone
+    if (LBd > deadZone){
+      Ld = ((LBd - deadZone) * (1 / (1 - deadZone)));
+    }
+    else if (LBd < - deadZone){
+      Ld = ((LBd + deadZone) * (-1 / (-1 + deadZone)));
+    }
+    else{
+      Ld = 0;
+    }
+
+    //Right deadZone
+    if (RBd > deadZone){
+      Rd = ((RBd - deadZone) * (1 / (1 - deadZone)));
+    }
+    else if (RBd < - deadZone){
+      Rd = ((RBd + deadZone) * (-1 / (-1 + deadZone)));
+    }
+    else{
+      Rd = 0;
+    }
+
+
+    m_left.Set(Ld);
+    m_right.Set(Rd);
   }
 
 

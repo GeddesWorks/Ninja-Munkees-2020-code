@@ -29,6 +29,11 @@
 #include "rev/ColorSensorV3.h"
 #include "rev/ColorMatch.h"
 
+#include <frc/SpeedControllerGroup.h>
+
+#include "networktables/NetworkTable.h"
+#include "networktables/NetworkTableInstance.h"
+
 
 class Robot : public frc::TimedRobot {
  public:
@@ -50,9 +55,10 @@ class Robot : public frc::TimedRobot {
 
   // Input
 
-  frc::Joystick mainJoystick{0};
+  frc::Joystick JLeft{0};
+  frc::Joystick JRight{1};
 
-  frc::Joystick buttonBoard{1};
+  frc::Joystick buttonBoard{2};
   
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 m_colorSensor{i2cPort};
@@ -74,12 +80,16 @@ class Robot : public frc::TimedRobot {
   static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
 
 
+// drive train setup
 
-
-
-
-
-
+  frc::Spark frontLeftMotor1{0};
+  frc::Spark frontLeftMotor2{1};
+  frc::Spark frontRightMotor1{2};
+  frc::Spark frontRightMotor2{3};
+  frc::Spark rearLeftMotor1{4};
+  frc::Spark rearLeftMotor2{5};
+  frc::Spark rearRightMotor1{6};
+  frc::Spark rearRightMotor2{7};
 
 
  private:
@@ -87,4 +97,15 @@ class Robot : public frc::TimedRobot {
   const std::string kAutoNameDefault = "Default";
   const std::string kAutoNameCustom = "My Auto";
   std::string m_autoSelected;
+  
+  float LBd;
+  float RBd;
+  float Ld;
+  float Rd;
+
+  float deadZone = .25;
+
+  frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
+  frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
+
 };
