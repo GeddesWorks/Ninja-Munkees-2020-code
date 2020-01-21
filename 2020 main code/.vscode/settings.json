@@ -14,5 +14,8 @@
     "**/.factorypath": true
   },
   "C_Cpp.default.configurationProvider": "vscode-wpilib",
-  "C_Cpp.errorSquiggles": "Disabled"
+  "C_Cpp.errorSquiggles": "Disabled",
+  "files.associations": {
+    "*.inc": "cpp"
+  }
 }

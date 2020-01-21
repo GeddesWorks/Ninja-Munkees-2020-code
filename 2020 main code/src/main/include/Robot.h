@@ -82,6 +82,8 @@ class Robot : public frc::TimedRobot {
 
 // drive train setup
 
+  float deadZone = .25;
+
   frc::Spark frontLeftMotor1{0};
   frc::Spark frontLeftMotor2{1};
   frc::Spark frontRightMotor1{2};
@@ -90,6 +92,17 @@ class Robot : public frc::TimedRobot {
   frc::Spark rearLeftMotor2{5};
   frc::Spark rearRightMotor1{6};
   frc::Spark rearRightMotor2{7};
+
+  frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
+  frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
+
+
+// Aiming
+  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+ 
+  float Kp = -0.1f;
+  float min_command = 0.05f;
+  
 
 
  private:
@@ -103,9 +116,7 @@ class Robot : public frc::TimedRobot {
   float Ld;
   float Rd;
 
-  float deadZone = .25;
+ 
 
-  frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
-  frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
-
+  
 };
