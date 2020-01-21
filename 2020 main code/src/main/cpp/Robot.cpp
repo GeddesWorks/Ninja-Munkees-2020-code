@@ -62,7 +62,8 @@ void Robot::AutonomousInit() {
 void Robot::AutonomousPeriodic() {
   if (m_autoSelected == kAutoNameCustom) {
     // Custom Auto goes here
-  } else {
+  } 
+  else {
     // Default Auto goes here
   }
 }
@@ -73,8 +74,7 @@ void Robot::TeleopPeriodic() {
 
   ColorPizza();
   Drive();
-  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
-  double targetArea = table->GetNumber("ta",0.0);
+  
 
 }
 
