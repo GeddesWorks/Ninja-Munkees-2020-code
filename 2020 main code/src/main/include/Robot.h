@@ -45,8 +45,7 @@ class Robot : public frc::TimedRobot {
   void TeleopInit() override;
   void TeleopPeriodic() override;
   void TestPeriodic() override;
-
- // Robot scripts setup----
+// Robot scripts setup
 
   void Drive();
   void Shooter();
@@ -55,7 +54,7 @@ class Robot : public frc::TimedRobot {
   void ColorPizza();
 
 
- // Input------------------
+  // Input
 
   frc::Joystick JLeft{0};
   frc::Joystick JRight{1};
@@ -65,8 +64,13 @@ class Robot : public frc::TimedRobot {
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 m_colorSensor{i2cPort};
   rev::ColorMatch m_colorMatcher;
-  
- // Color codes------------
+  /**
+
+   * Note: Any example colors should be calibrated as the user needs, these
+
+   * are here as a basic example.
+
+   */
 
   static constexpr frc::Color kBlueTarget = frc::Color(0.143, 0.427, 0.429);
 
@@ -76,7 +80,8 @@ class Robot : public frc::TimedRobot {
 
   static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
 
- // drive train setup------
+
+// drive train setup
 
   float deadZone = .25;
 
@@ -93,7 +98,7 @@ class Robot : public frc::TimedRobot {
   frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
 
 
- // Aiming-----------------
+// Aiming
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
  
   float Kp = -0.1f;
