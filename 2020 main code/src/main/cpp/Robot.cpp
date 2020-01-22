@@ -74,7 +74,7 @@ void Robot::TeleopPeriodic() {
 
   ColorPizza();
   Drive();
-  
+  wristMotor->Set(ControlMode::Velocity, 5);
 
 }
 

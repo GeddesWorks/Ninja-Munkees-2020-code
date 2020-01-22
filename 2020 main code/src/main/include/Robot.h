@@ -11,16 +11,14 @@
 #include <string>
 #include <frc/smartdashboard/SendableChooser.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-//#include <frc/Talon.h>
+
 #include <frc/spark.h>
 #include <cameraserver/CameraServer.h>
-//#include "rev/CANSparkMax.h"
+
 #include <frc/DigitalInput.h>
 #include <wpi/raw_ostream.h>
 #include <frc/encoder.h>
-//#include "ctre/Phoenix.h"
 #include <frc/TimedRobot.h>
-
 #include <frc/DoubleSolenoid.h>
 #include <frc/Joystick.h>
 #include <frc/Solenoid.h>
@@ -34,6 +32,9 @@
 #include "networktables/NetworkTable.h"
 #include "networktables/NetworkTableInstance.h"
 
+#include <frc/Talon.h>
+#include "rev/CANSparkMax.h"
+#include "ctre/Phoenix.h"
 
 class Robot : public frc::TimedRobot {
  public:
@@ -97,7 +98,9 @@ class Robot : public frc::TimedRobot {
  
   float Kp = -0.1f;
   float min_command = 0.05f;
-  
+
+ // Talon encoder-----------
+  TalonSRX * wristMotor = new TalonSRX(1);
 
 
  private:
