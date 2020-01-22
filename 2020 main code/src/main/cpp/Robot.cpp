@@ -73,11 +73,16 @@ void Robot::TeleopPeriodic() {
 
   ColorPizza();
   Drive();
+<<<<<<< HEAD
   wristMotor->Set(ControlMode::Velocity, 5);
 
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double targetArea = table->GetNumber("ta",0.0);
 
+=======
+  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  double targetArea = table->GetNumber("ta",0.0);
+>>>>>>> parent of 3d78939... cleaned
 
 }
 
