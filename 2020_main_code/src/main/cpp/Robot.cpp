@@ -15,6 +15,14 @@ void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+
+    frc::Color detectedColor = m_colorSensor.GetColor();m_colorMatcher.AddColorMatch(kBlueTarget);
+
+    m_colorMatcher.AddColorMatch(kGreenTarget);
+
+    m_colorMatcher.AddColorMatch(kRedTarget);
+
+    m_colorMatcher.AddColorMatch(kYellowTarget);
 }
 
 /**
@@ -61,7 +69,123 @@ void Robot::AutonomousPeriodic() {
 
 void Robot::TeleopInit() {}
 
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+
+  ColorPizza();
+  Drive();
+
+  wristMotor->Set(ControlMode::Velocity, 50);
+  frc::SmartDashboard::PutNumber("Velocity", wristMotor->GetSelectedSensorVelocity());
+
+  std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  double targetArea = table->GetNumber("ta",0.0);
+
+}
+
+ void Robot::ColorPizza() {
+    frc::Color detectedColor = m_colorSensor.GetColor();
+
+
+
+    /**
+
+      * Run the color match algorithm on our detected color
+
+      */
+
+    std::string colorString;
+
+    double confidence = 0.0;
+
+    frc::Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
+
+
+
+    if (matchedColor == kBlueTarget) {
+
+      colorString = "Blue";
+
+    } else if (matchedColor == kRedTarget) {
+
+      colorString = "Red";
+
+    } else if (matchedColor == kGreenTarget) {
+
+      colorString = "Green";
+
+    } else if (matchedColor == kYellowTarget) {
+
+      colorString = "Yellow";
+
+    } else {
+
+      colorString = "Unknown";
+
+    }
+
+    frc::SmartDashboard::PutString("Detected color", colorString);
+
+
+
+  }
+
+  void Robot::Drive() {
+    LBd = JLeft.GetY();
+    RBd = JRight.GetY();
+
+    if (JLeft.GetRawButton(3) == 0){
+
+      //Left deadZone
+      if (LBd > deadZone){
+        Ld = ((LBd - deadZone) * (1 / (1 - deadZone)));
+      }
+      else if (LBd < - deadZone){
+        Ld = ((LBd + deadZone) * (-1 / (-1 + deadZone)));
+      }
+      else{
+        Ld = 0;
+      }
+
+      //Right deadZone
+      if (RBd > deadZone){
+        Rd = ((RBd - deadZone) * (1 / (1 - deadZone)));
+      }
+      else if (RBd < - deadZone){
+        Rd = ((RBd + deadZone) * (-1 / (-1 + deadZone)));
+      }
+      else{
+        Rd = 0;
+      }
+    }
+
+    m_left.Set(Ld);
+    m_right.Set(Rd);
+
+    //Aiming
+    std::shared_ptr<NetworkTable> table = NetworkTable::GetTable("limelight");
+   float tx = table->GetNumber("tx",0.0);
+    double targetOffsetAngle_Horizontal = table->GetNumber("tx",0.0);
+    double targetOffsetAngle_Vertical = table->GetNumber("ty",0.0);
+    double targetArea = table->GetNumber("ta",0.0);
+    double targetSkew = table->GetNumber("ts",0.0);
+
+    if (JLeft.GetRawButton(3))
+    {
+            float heading_error = -tx;
+            float steering_adjust = 0.0f;
+            if (tx > 1.0)
+            {
+                    steering_adjust = Kp*heading_error - min_command;
+            }
+            else if (tx < 1.0)
+            {
+                    steering_adjust = Kp*heading_error + min_command;
+            }
+            Ld -= steering_adjust;
+            Rd += steering_adjust;
+    }
+  }
+
 
 void Robot::TestPeriodic() {}
 
