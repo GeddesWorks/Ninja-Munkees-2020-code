@@ -98,7 +98,7 @@ class Robot : public frc::TimedRobot {
   frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
 
 
-// Aiming
+// Aiming------------------
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
  
   float Kp = -0.1f;
