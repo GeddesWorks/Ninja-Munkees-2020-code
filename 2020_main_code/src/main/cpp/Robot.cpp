@@ -75,7 +75,12 @@ void Robot::TeleopPeriodic() {
   Drive();
 
   wristMotor->Set(ControlMode::Velocity, 50);
-  frc::SmartDashboard::PutNumber("Velocity", wristMotor->GetSelectedSensorVelocity());
+
+  frc::SmartDashboard::PutNumber("Velocity", wristMotor->GetSelectedSensorPosition());
+  frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("rearRightEncoder", rearRightEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("rearLeftEncoder", rearLeftEncoder.GetPosition());
 
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double targetArea = table->GetNumber("ta",0.0);

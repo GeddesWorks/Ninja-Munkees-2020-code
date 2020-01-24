@@ -84,15 +84,19 @@ class Robot : public frc::TimedRobot {
 // drive train setup
 
   float deadZone = .25;
+  rev::CANSparkMax frontLeftMotor1{0, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontLeftMotor2{1, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontRightMotor1{2, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontRightMotor2{3, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearLeftMotor1{4, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearLeftMotor2{5, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearRightMotor1{6, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearRightMotor2{7, rev::CANSparkMax::MotorType::kBrushless};
 
-  frc::Spark frontLeftMotor1{0};
-  frc::Spark frontLeftMotor2{1};
-  frc::Spark frontRightMotor1{2};
-  frc::Spark frontRightMotor2{3};
-  frc::Spark rearLeftMotor1{4};
-  frc::Spark rearLeftMotor2{5};
-  frc::Spark rearRightMotor1{6};
-  frc::Spark rearRightMotor2{7};
+  rev::CANEncoder frontLeftEncoder = frontLeftMotor1.GetEncoder();
+  rev::CANEncoder frontRightEncoder = frontRightMotor1.GetEncoder();
+  rev::CANEncoder rearLeftEncoder = rearLeftMotor1.GetEncoder();
+  rev::CANEncoder rearRightEncoder = rearRightMotor1.GetEncoder();
 
   frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
   frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
