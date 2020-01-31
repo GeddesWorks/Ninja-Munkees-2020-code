@@ -23,6 +23,21 @@ void Robot::RobotInit() {
     m_colorMatcher.AddColorMatch(kRedTarget);
 
     m_colorMatcher.AddColorMatch(kYellowTarget);
+
+    // ECODERS
+    shoot1->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
+
+    shoot1->ConfigPeakOutputForward(1);
+    shoot1->ConfigPeakOutputReverse(-1);
+
+    shoot1->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
+    shoot1->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+    shoot1->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+    shoot1->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+
+    shoot1->SetSensorPhase(false);
+    shoot1->SetInverted(false);
+    bool upSwitch = new DigitalInput(0);
 }
 
 /**
@@ -67,27 +82,34 @@ void Robot::AutonomousPeriodic() {
   }
 }
 
-void Robot::TeleopInit() {}
+void Robot::TeleopInit() {
+ 
+}
 
 void Robot::TeleopPeriodic() {
 
   ColorPizza();
   Drive();
+  Shooter();
+  Intake();
+  double motorOutput = shoot1->GetSelectedSensorVelocity();
+  shoot1->Set(ControlMode::PercentOutput, JRight.GetY());
+  
 
-  wristMotor->Set(ControlMode::Velocity, 50);
-
-  frc::SmartDashboard::PutNumber("Velocity", wristMotor->GetSelectedSensorPosition());
-  frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("Velocity", motorOutput);
+  frc::SmartDashboard::PutNumber("Pos", shoot1->GetSelectedSensorPosition());
+/*frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
   frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("rearRightEncoder", rearRightEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("rearLeftEncoder", rearLeftEncoder.GetPosition());
+*/
 
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double targetArea = table->GetNumber("ta",0.0);
 
 }
 
- void Robot::ColorPizza() {
+void Robot::ColorPizza() {
     frc::Color detectedColor = m_colorSensor.GetColor();
 
 
@@ -130,8 +152,24 @@ void Robot::TeleopPeriodic() {
 
     frc::SmartDashboard::PutString("Detected color", colorString);
 
+  }
 
+  void Robot::Intake() {
+    bool up = upSwitch->get();
+    bool down = 1;
 
+    // upSwitch = 1 when intake is up
+    // downSwitch = 1 when intake is down
+
+    if(buttonBoard.GetRawButton(1) == 1 && up == true){
+      intakeMove->Set(ControlMode::PercentOutput, .5);
+    }
+    else if(buttonBoard.GetRawButton(5) == 1 && down == true){
+      intakeMove->Set(ControlMode::PercentOutput, -.5);
+    }
+    else{
+      intakeMove->Set(ControlMode::PercentOutput, 0);
+    }
   }
 
   void Robot::Drive() {
@@ -163,12 +201,13 @@ void Robot::TeleopPeriodic() {
       }
     }
 
-    m_left.Set(Ld);
-    m_right.Set(Rd);
+    //m_left.Set(Ld);
+    //m_right.Set(Rd);
+    //frontRightMotor2.Set(1);
 
     //Aiming
     std::shared_ptr<NetworkTable> table = NetworkTable::GetTable("limelight");
-   float tx = table->GetNumber("tx",0.0);
+    float tx = table->GetNumber("tx",0.0);
     double targetOffsetAngle_Horizontal = table->GetNumber("tx",0.0);
     double targetOffsetAngle_Vertical = table->GetNumber("ty",0.0);
     double targetArea = table->GetNumber("ta",0.0);
@@ -189,6 +228,54 @@ void Robot::TeleopPeriodic() {
             Ld -= steering_adjust;
             Rd += steering_adjust;
     }
+  }
+
+  void Robot::Shooter(){
+    /* get gamepad axis */
+
+		double leftYstick = JLeft.GetY();
+		double motorOutput = shoot1->GetMotorOutputPercent();
+    std::string _sb;
+
+	  int _loops = 0;
+
+		/* prepare line to print */
+		_sb.append("\tout:");
+		_sb.append(std::to_string(motorOutput));
+		_sb.append("\tspd:");
+		_sb.append(std::to_string(shoot1->GetSelectedSensorVelocity(kPIDLoopIdx)));
+
+		/* while button1 is held down, closed-loop on target velocity */
+		if (JLeft.GetRawButton(3)) {
+
+        	/* Speed mode */
+
+			/* Convert 500 RPM to units / 100ms.
+
+			 * 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
+
+			 * velocity setpoint is in units/100ms
+
+			 */
+
+			double targetVelocity_UnitsPer100ms = leftYstick * 500.0 * 4096 / 600;
+
+			/* 500 RPM in either direction */
+
+        shoot1->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms); 
+			
+
+    } 
+    else {
+
+			/* Percent voltage mode */
+
+			shoot1->Set(ControlMode::PercentOutput, leftYstick);
+
+    }
+
+    
+
   }
 
 

@@ -36,6 +36,7 @@
 #include "rev/CANSparkMax.h"
 #include "ctre/Phoenix.h"
 
+
 class Robot : public frc::TimedRobot {
  public:
   void RobotInit() override;
@@ -58,8 +59,9 @@ class Robot : public frc::TimedRobot {
 
   frc::Joystick JLeft{0};
   frc::Joystick JRight{1};
-
   frc::Joystick buttonBoard{2};
+  frc::DigitalInput upSwitch, downSwitch;
+  downSwitch = new DigitalInput(1);
   
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 m_colorSensor{i2cPort};
@@ -84,14 +86,16 @@ class Robot : public frc::TimedRobot {
 // drive train setup
 
   float deadZone = .25;
-  rev::CANSparkMax frontLeftMotor1{0, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax frontLeftMotor2{1, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax frontRightMotor1{2, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax frontRightMotor2{3, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax rearLeftMotor1{4, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax rearLeftMotor2{5, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax rearRightMotor1{6, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax rearRightMotor2{7, rev::CANSparkMax::MotorType::kBrushless};
+ 
+  //rev::CANSparkMax frontLeftMotor1{1, rev::CANSparkMax::MotorType::kBrushless};
+  //rev::CANSparkMax frontLeftMotor2{2, rev::CANSparkMax::MotorType::kBrushless};
+  //rev::CANSparkMax frontRightMotor1{3, rev::CANSparkMax::MotorType::kBrushless};
+  //rev::CANSparkMax frontRightMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
+  /*rev::CANSparkMax rearLeftMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearLeftMotor2{6, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearRightMotor1{7, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearRightMotor2{8, rev::CANSparkMax::MotorType::kBrushless};
+
 
   rev::CANEncoder frontLeftEncoder = frontLeftMotor1.GetEncoder();
   rev::CANEncoder frontRightEncoder = frontRightMotor1.GetEncoder();
@@ -100,7 +104,7 @@ class Robot : public frc::TimedRobot {
 
   frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
   frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
-
+*/
 
 // Aiming------------------
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
@@ -109,7 +113,27 @@ class Robot : public frc::TimedRobot {
   float min_command = 0.05f;
 
  // Talon encoder-----------
-  TalonSRX * wristMotor = new TalonSRX(1);
+  TalonFX * shoot1 = new TalonFX(9);
+
+  const float WRIST_kP = 0.001;
+  const float WRIST_kI = 0;
+  const float WRIST_kD = 0;
+  const float WRIST_kF = 0;
+
+  const int kPIDLoopIdx = 0;
+
+  const int kTimeoutMs = 30;
+
+  const float  wrist_low = 0;
+  const float  wrist_pickup = 0;
+  const float  wrist_mid = 4096 / 4;
+  const float  wrist_high = 0.15 * 4096;
+
+  const int kSlotIdx = 0;
+
+// Intake-------------------
+  VictorSPX * intakeMove = new VictorSPX(10);
+  
 
 
  private:
