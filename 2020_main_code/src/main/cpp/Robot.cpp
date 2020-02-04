@@ -37,7 +37,26 @@ void Robot::RobotInit() {
 
     shoot1->SetSensorPhase(false);
     shoot1->SetInverted(false);
-    bool upSwitch = new DigitalInput(0);
+    
+    shoot2->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
+
+    shoot2->ConfigPeakOutputForward(1);
+    shoot2->ConfigPeakOutputReverse(-1);
+
+    shoot2->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
+    shoot2->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+    shoot2->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+    shoot2->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+
+    shoot2->SetSensorPhase(false);
+    shoot2->SetInverted(false);
+
+    climbPID.SetP(kPe);
+    climbPID.SetI(kI);
+    climbPID.SetD(kD);
+    climbPID.SetIZone(kIz);
+    climbPID.SetFF(kFF);
+    climbPID.SetOutputRange(kMinOutput, kMaxOutput);
 }
 
 /**
@@ -92,10 +111,12 @@ void Robot::TeleopPeriodic() {
   Drive();
   Shooter();
   Intake();
+  Climber();
+  speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 10);
+  Ospeed = speed / 100;
   double motorOutput = shoot1->GetSelectedSensorVelocity();
-  shoot1->Set(ControlMode::PercentOutput, JRight.GetY());
-  
-
+  shoot1->Set(ControlMode::PercentOutput, Ospeed);
+  shoot2->Set(ControlMode::PercentOutput, Ospeed * -1);
   frc::SmartDashboard::PutNumber("Velocity", motorOutput);
   frc::SmartDashboard::PutNumber("Pos", shoot1->GetSelectedSensorPosition());
 /*frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
@@ -155,20 +176,25 @@ void Robot::ColorPizza() {
   }
 
   void Robot::Intake() {
-    bool up = upSwitch->get();
-    bool down = 1;
+    bool up = upSwitch.Get();
+    bool down = downSwitch.Get();
+    frc::SmartDashboard::PutNumber("button", up);
 
     // upSwitch = 1 when intake is up
     // downSwitch = 1 when intake is down
 
-    if(buttonBoard.GetRawButton(1) == 1 && up == true){
+    if(buttonBoard.GetRawButton(1) == 1 && up == false){
       intakeMove->Set(ControlMode::PercentOutput, .5);
     }
-    else if(buttonBoard.GetRawButton(5) == 1 && down == true){
+    else if(buttonBoard.GetRawButton(5) == 1 && down == false){
       intakeMove->Set(ControlMode::PercentOutput, -.5);
     }
     else{
       intakeMove->Set(ControlMode::PercentOutput, 0);
+    }
+
+    if(buttonBoard.GetRawButton(9)){
+      intakeRun->Set(ControlMode::PercentOutput, 1);
     }
   }
 
@@ -235,49 +261,38 @@ void Robot::ColorPizza() {
 
 		double leftYstick = JLeft.GetY();
 		double motorOutput = shoot1->GetMotorOutputPercent();
-    std::string _sb;
-
-	  int _loops = 0;
-
-		/* prepare line to print */
-		_sb.append("\tout:");
-		_sb.append(std::to_string(motorOutput));
-		_sb.append("\tspd:");
-		_sb.append(std::to_string(shoot1->GetSelectedSensorVelocity(kPIDLoopIdx)));
+    double motorOutput2 = shoot2->GetMotorOutputPercent();
 
 		/* while button1 is held down, closed-loop on target velocity */
 		if (JLeft.GetRawButton(3)) {
-
-        	/* Speed mode */
-
-			/* Convert 500 RPM to units / 100ms.
-
-			 * 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
-
-			 * velocity setpoint is in units/100ms
-
-			 */
 
 			double targetVelocity_UnitsPer100ms = leftYstick * 500.0 * 4096 / 600;
 
 			/* 500 RPM in either direction */
 
         shoot1->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms); 
-			
+        shoot2->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms * -1); 
 
-    } 
-    else {
-
-			/* Percent voltage mode */
-
-			shoot1->Set(ControlMode::PercentOutput, leftYstick);
+  
 
     }
-
-    
-
   }
 
+  void Robot::Climber(){
+    bool goUp = buttonBoard.GetRawButton(2);
+    bool goDown = buttonBoard.GetRawButton(6);
+
+    if(goUp == 1){
+      pos = posUp;
+    }
+    else if(goDown == 1){
+     
+      pos = posDown;
+    }
+    else{}
+
+    climbPID.SetReference(pos, rev::ControlType::kPosition);
+  }
 
 void Robot::TestPeriodic() {}
 

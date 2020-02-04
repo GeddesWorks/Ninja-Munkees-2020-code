@@ -60,8 +60,8 @@ class Robot : public frc::TimedRobot {
   frc::Joystick JLeft{0};
   frc::Joystick JRight{1};
   frc::Joystick buttonBoard{2};
-  frc::DigitalInput upSwitch, downSwitch;
-  downSwitch = new DigitalInput(1);
+  frc::DigitalInput upSwitch{1};
+  frc::DigitalInput downSwitch{2};
   
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 m_colorSensor{i2cPort};
@@ -112,8 +112,11 @@ class Robot : public frc::TimedRobot {
   float Kp = -0.1f;
   float min_command = 0.05f;
 
- // Talon encoder-----------
+ // Talon encoder shooter-----------
   TalonFX * shoot1 = new TalonFX(9);
+  TalonFX * shoot2 = new TalonFX(12);
+  double speed = .10;
+  double Ospeed;
 
   const float WRIST_kP = 0.001;
   const float WRIST_kI = 0;
@@ -133,7 +136,28 @@ class Robot : public frc::TimedRobot {
 
 // Intake-------------------
   VictorSPX * intakeMove = new VictorSPX(10);
+  TalonSRX * intakeRun = new TalonSRX(13);
   
+// Climber------------------
+  rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANPIDController climbPID = climber.GetPIDController();
+
+  double pos;
+  double posUp = 0;
+  double posDown = 0;
+
+  double kPe = 0.2, 
+    kI = 0, 
+    kD = 1, 
+    kIz = 0, 
+    kFF = 0, 
+    kMaxOutput = 1, 
+    kMinOutput = -1;
+
+// Index-------------------
+  TalonSRX * index = new TalonSRX(11);
+
+
 
 
  private:
