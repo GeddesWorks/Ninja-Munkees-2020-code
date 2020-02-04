@@ -53,6 +53,8 @@ class Robot : public frc::TimedRobot {
   void Intake();
   void Climber();
   void ColorPizza();
+  void Index();
+  void LED();
 
 
   // Input
@@ -66,20 +68,10 @@ class Robot : public frc::TimedRobot {
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 m_colorSensor{i2cPort};
   rev::ColorMatch m_colorMatcher;
-  /**
-
-   * Note: Any example colors should be calibrated as the user needs, these
-
-   * are here as a basic example.
-
-   */
-
+ 
   static constexpr frc::Color kBlueTarget = frc::Color(0.143, 0.427, 0.429);
-
   static constexpr frc::Color kGreenTarget = frc::Color(0.197, 0.561, 0.240);
-
   static constexpr frc::Color kRedTarget = frc::Color(0.561, 0.232, 0.114);
-
   static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
 
 
@@ -111,7 +103,7 @@ class Robot : public frc::TimedRobot {
  
   float Kp = -0.1f;
   float min_command = 0.05f;
-
+  bool aimed;
  // Talon encoder shooter-----------
   TalonFX * shoot1 = new TalonFX(9);
   TalonFX * shoot2 = new TalonFX(12);
@@ -137,6 +129,7 @@ class Robot : public frc::TimedRobot {
 // Intake-------------------
   VictorSPX * intakeMove = new VictorSPX(10);
   TalonSRX * intakeRun = new TalonSRX(13);
+  bool buttonPressed = false; //Toggles intake on(true) & off(false)
   
 // Climber------------------
   rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
@@ -156,8 +149,14 @@ class Robot : public frc::TimedRobot {
 
 // Index-------------------
   TalonSRX * index = new TalonSRX(11);
+  double indexDirection = 0;
+  bool intakeIsRunning;
+  bool shooterIsRunning;
+  double indexShift = 405;
 
-
+// LED Set-up
+  frc::Spark LEDcontrol{0};
+  bool canShoot;
 
 
  private:
