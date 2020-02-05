@@ -57,6 +57,8 @@ void Robot::RobotInit() {
     climbPID.SetIZone(kIz);
     climbPID.SetFF(kFF);
     climbPID.SetOutputRange(kMinOutput, kMaxOutput);
+
+    index->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, kTimeoutMs);
 }
 
 /**
@@ -112,6 +114,8 @@ void Robot::TeleopPeriodic() {
   Shooter();
   Intake();
   Climber();
+  Index();
+  LED();
   speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 10);
   Ospeed = speed / 100;
   double motorOutput = shoot1->GetSelectedSensorVelocity();
@@ -131,44 +135,22 @@ void Robot::TeleopPeriodic() {
 }
 
 void Robot::ColorPizza() {
-    frc::Color detectedColor = m_colorSensor.GetColor();
-
-
-
-    /**
-
-      * Run the color match algorithm on our detected color
-
-      */
-
-    std::string colorString;
-
     double confidence = 0.0;
-
+    frc::Color detectedColor = m_colorSensor.GetColor();
+    std::string colorString;
     frc::Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
-
-
-
+    
+    
     if (matchedColor == kBlueTarget) {
-
       colorString = "Blue";
-
     } else if (matchedColor == kRedTarget) {
-
       colorString = "Red";
-
     } else if (matchedColor == kGreenTarget) {
-
       colorString = "Green";
-
     } else if (matchedColor == kYellowTarget) {
-
       colorString = "Yellow";
-
     } else {
-
       colorString = "Unknown";
-
     }
 
     frc::SmartDashboard::PutString("Detected color", colorString);
@@ -193,9 +175,16 @@ void Robot::ColorPizza() {
       intakeMove->Set(ControlMode::PercentOutput, 0);
     }
 
-    if(buttonBoard.GetRawButton(9)){
-      intakeRun->Set(ControlMode::PercentOutput, 1);
-    }
+    if(buttonBoard.GetRawButton(9)){  //Has intake button been pushed?
+      if(buttonPressed == false){ //Turns on intake
+        intakeRun->Set(ControlMode::PercentOutput, 1);
+        buttonPressed = true;
+      } //if(buttonPressed == false)
+      else if(buttonPressed == true){ //Turns off intake
+        intakeRun->Set(ControlMode::PercentOutput, 0);
+        buttonPressed = false;
+      } //if else(buttonPressed == true)
+    } //if(buttonBoard.GetRawButton(9))
   }
 
   void Robot::Drive() {
@@ -239,21 +228,25 @@ void Robot::ColorPizza() {
     double targetArea = table->GetNumber("ta",0.0);
     double targetSkew = table->GetNumber("ts",0.0);
 
-    if (JLeft.GetRawButton(3))
+    if (JLeft.GetRawButton(10))
     {
-            float heading_error = -tx;
-            float steering_adjust = 0.0f;
-            if (tx > 1.0)
-            {
-                    steering_adjust = Kp*heading_error - min_command;
-            }
-            else if (tx < 1.0)
-            {
-                    steering_adjust = Kp*heading_error + min_command;
-            }
-            Ld -= steering_adjust;
-            Rd += steering_adjust;
+      float heading_error = -tx;
+      float steering_adjust = 0.0f;
+      if (tx > 1.0)
+      {
+              steering_adjust = Kp*heading_error - min_command;
+      }
+      else if (tx < 1.0)
+      {
+              steering_adjust = Kp*heading_error + min_command;
+      }
+      Ld -= steering_adjust;
+      Rd += steering_adjust;
     }
+    if(tx < .1 && tx > -.1){
+      aimed = true;
+    }
+
   }
 
   void Robot::Shooter(){
@@ -293,6 +286,27 @@ void Robot::ColorPizza() {
 
     climbPID.SetReference(pos, rev::ControlType::kPosition);
   }
+
+  void Robot::Index(){
+    if (buttonBoard.GetRawButton(11)){
+      shooterIsRunning = true;
+      index->Set(ControlMode::Velocity, -1); 
+    }
+    else if(buttonBoard.GetRawButton(4)){
+      index->Set(ControlMode::Position, index->GetSelectedSensorPosition() + indexShift);
+    }
+    
+  }
+  void Robot::LED(){
+    if(canShoot == true){
+      LEDcontrol.Set(-0.91);
+    }
+    else{
+      LEDcontrol.Set(-0.79);
+    }
+
+  }
+
 
 void Robot::TestPeriodic() {}
 
