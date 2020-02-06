@@ -118,10 +118,9 @@ void Robot::TeleopPeriodic() {
   LED();
   speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 10);
   Ospeed = speed / 100;
-  double motorOutput = shoot1->GetSelectedSensorVelocity();
   shoot1->Set(ControlMode::PercentOutput, Ospeed);
   shoot2->Set(ControlMode::PercentOutput, Ospeed * -1);
-  frc::SmartDashboard::PutNumber("Velocity", motorOutput);
+  
   frc::SmartDashboard::PutNumber("Pos", shoot1->GetSelectedSensorPosition());
 /*frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
   frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetPosition());
@@ -134,7 +133,7 @@ void Robot::TeleopPeriodic() {
 
 }
 
-void Robot::ColorPizza() {
+  void Robot::ColorPizza() {
     double confidence = 0.0;
     frc::Color detectedColor = m_colorSensor.GetColor();
     std::string colorString;
@@ -223,21 +222,19 @@ void Robot::ColorPizza() {
     //Aiming-
     std::shared_ptr<NetworkTable> table = NetworkTable::GetTable("limelight");
     float tx = table->GetNumber("tx",0.0);
-    double targetOffsetAngle_Horizontal = table->GetNumber("tx",0.0);
+    //double targetOffsetAngle_Horizontal = table->GetNumber("tx",0.0);
     double targetOffsetAngle_Vertical = table->GetNumber("ty",0.0);
-    double targetArea = table->GetNumber("ta",0.0);
-    double targetSkew = table->GetNumber("ts",0.0);
+    //double targetArea = table->GetNumber("ta",0.0);
+    //double targetSkew = table->GetNumber("ts",0.0);
 
     if (JLeft.GetRawButton(10))
     {
       float heading_error = -tx;
       float steering_adjust = 0.0f;
-      if (tx > 1.0)
-      {
+      if (tx > 1.0){
               steering_adjust = Kp*heading_error - min_command;
       }
-      else if (tx < 1.0)
-      {
+      else if (tx < 1.0){
               steering_adjust = Kp*heading_error + min_command;
       }
       Ld -= steering_adjust;
@@ -246,6 +243,10 @@ void Robot::ColorPizza() {
     if(tx < .1 && tx > -.1){
       aimed = true;
     }
+    angleOfCameraFromTarget = targetOffsetAngle_Vertical;
+    distanceFromTarget =  (hightOfTarget - hightOfCamera) / tan(angleOfCamera + angleOfCameraFromTarget);
+
+    distanceFromTarget 
 
   }
 
@@ -256,19 +257,27 @@ void Robot::ColorPizza() {
 		double motorOutput = shoot1->GetMotorOutputPercent();
     double motorOutput2 = shoot2->GetMotorOutputPercent();
 
-		/* while button1 is held down, closed-loop on target velocity */
-		if (JLeft.GetRawButton(3)) {
+		shooterActualSpeed = shoot1->GetSelectedSensorVelocity();
+    frc::SmartDashboard::PutNumber("Shooter Actual Speed", shooterActualSpeed);
 
-			double targetVelocity_UnitsPer100ms = leftYstick * 500.0 * 4096 / 600;
 
-			/* 500 RPM in either direction */
 
-        shoot1->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms); 
-        shoot2->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms * -1); 
-
-  
-
+    if(buttonBoard.GetRawButton(11)){
+      shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 
+      shoot2->Set(ControlMode::Velocity, shooterTargetSpeed * -1);
+      if(shooterActualSpeed < shooterTargetSpeed + 10 && shooterActualSpeed > shooterTargetSpeed - 10){
+        shooterIsRunning = true;
+      }
+      else{
+        shooterIsRunning = false;
+      }
     }
+    else{
+      shoot1->Set(ControlMode::PercentOutput, .1); 
+      shoot2->Set(ControlMode::PercentOutput, .1 -1); 
+      shooterIsRunning = false;
+    }
+    frc::SmartDashboard::PutNumber("Shooter Target Speed", shooterTargetSpeed);
   }
 
   void Robot::Climber(){
@@ -288,8 +297,7 @@ void Robot::ColorPizza() {
   }
 
   void Robot::Index(){
-    if (buttonBoard.GetRawButton(11)){
-      shooterIsRunning = true;
+    if (buttonBoard.GetRawButton(11) && shooterIsRunning == true){
       index->Set(ControlMode::Velocity, -1); 
     }
     else if(buttonBoard.GetRawButton(4)){
@@ -297,12 +305,14 @@ void Robot::ColorPizza() {
     }
     
   }
+
   void Robot::LED(){
-    if(canShoot == true){
-      LEDcontrol.Set(-0.91);
+    
+    if(aimed == true){
+      LEDcontrol.Set(.77);
     }
     else{
-      LEDcontrol.Set(-0.79);
+      LEDcontrol.Set(-0.07);
     }
 
   }

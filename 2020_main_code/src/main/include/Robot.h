@@ -104,11 +104,19 @@ class Robot : public frc::TimedRobot {
   float Kp = -0.1f;
   float min_command = 0.05f;
   bool aimed;
+  double distanceFromTarget;
+  double hightOfTarget = 0000;
+  double hightOfCamera = 0000;
+  double angleOfCamera = 0000;
+  double angleOfCameraFromTarget;
  // Talon encoder shooter-----------
   TalonFX * shoot1 = new TalonFX(9);
   TalonFX * shoot2 = new TalonFX(12);
   double speed = .10;
   double Ospeed;
+
+  double shooterTargetSpeed;
+  double shooterActualSpeed;
 
   const float WRIST_kP = 0.001;
   const float WRIST_kI = 0;
