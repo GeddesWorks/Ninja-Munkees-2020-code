@@ -309,10 +309,10 @@ void Robot::TeleopPeriodic() {
   void Robot::LED(){
     
     if(aimed == true){
-      LEDcontrol.Set(.77);
+      LEDcontrol.Set(-0.91);
     }
     else{
-      LEDcontrol.Set(-0.07);
+      LEDcontrol.Set(-0.79);
     }
 
   }
