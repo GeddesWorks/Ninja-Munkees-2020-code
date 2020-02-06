@@ -55,7 +55,7 @@ class Robot : public frc::TimedRobot {
   void ColorPizza();
   void Index();
   void LED();
-
+  void Testing();
 
   // Input
 

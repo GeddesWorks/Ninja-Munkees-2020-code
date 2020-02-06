@@ -116,12 +116,9 @@ void Robot::TeleopPeriodic() {
   Climber();
   Index();
   LED();
-  speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 10);
-  Ospeed = speed / 100;
-  shoot1->Set(ControlMode::PercentOutput, Ospeed);
-  shoot2->Set(ControlMode::PercentOutput, Ospeed * -1);
-  
-  frc::SmartDashboard::PutNumber("Pos", shoot1->GetSelectedSensorPosition());
+  Testing();
+
+ 
 /*frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
   frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("rearRightEncoder", rearRightEncoder.GetPosition());
@@ -246,7 +243,7 @@ void Robot::TeleopPeriodic() {
     angleOfCameraFromTarget = targetOffsetAngle_Vertical;
     distanceFromTarget =  (hightOfTarget - hightOfCamera) / tan(angleOfCamera + angleOfCameraFromTarget);
 
-    distanceFromTarget 
+    frc::SmartDashboard::PutNumber("Distance From Target", distanceFromTarget); 
 
   }
 
@@ -310,13 +307,21 @@ void Robot::TeleopPeriodic() {
     
     if(aimed == true){
       LEDcontrol.Set(-0.91);
+      frc::SmartDashboard::PutBoolean("Aimed", true);
     }
     else{
       LEDcontrol.Set(-0.79);
+      frc::SmartDashboard::PutBoolean("Aimed", false);
     }
 
   }
 
+  void Robot::Testing(){
+  speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 10);
+  Ospeed = speed / 100;
+  shoot1->Set(ControlMode::PercentOutput, Ospeed);
+  shoot2->Set(ControlMode::PercentOutput, Ospeed * -1);
+  }
 
 void Robot::TestPeriodic() {}
 
