@@ -156,7 +156,16 @@ void Robot::TeleopPeriodic() {
   void Robot::Intake() {
     bool up = upSwitch.Get();
     bool down = downSwitch.Get();
-    frc::SmartDashboard::PutNumber("button", up);
+    if(up == true){
+      frc::SmartDashboard::PutString("Intake is", "UP");
+    }
+    else if(down == true){
+      frc::SmartDashboard::PutString("Intake is", "DOWN");
+    }
+    else{
+      frc::SmartDashboard::PutString("Intake is", "In Between");
+    }
+    
 
     // upSwitch = 1 when intake is up
     // downSwitch = 1 when intake is down
@@ -259,6 +268,10 @@ void Robot::TeleopPeriodic() {
 
 
 
+
+
+
+
     if(buttonBoard.GetRawButton(11)){
       shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 
       shoot2->Set(ControlMode::Velocity, shooterTargetSpeed * -1);
@@ -275,6 +288,12 @@ void Robot::TeleopPeriodic() {
       shooterIsRunning = false;
     }
     frc::SmartDashboard::PutNumber("Shooter Target Speed", shooterTargetSpeed);
+    if(shooterIsRunning == true){
+      frc::SmartDashboard::PutBoolean("Shooter Is Shooting", true);
+    }
+    else{
+      frc::SmartDashboard::PutBoolean("Shooter Is Shooting", false);
+    }
   }
 
   void Robot::Climber(){
@@ -299,6 +318,9 @@ void Robot::TeleopPeriodic() {
     }
     else if(buttonBoard.GetRawButton(4)){
       index->Set(ControlMode::Position, index->GetSelectedSensorPosition() + indexShift);
+    }
+    else{
+      index->Set(ControlMode::Velocity, 0);
     }
     
   }
