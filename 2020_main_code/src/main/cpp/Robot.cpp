@@ -1,64 +1,48 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
+
 
 #include "Robot.h"
-
 #include <iostream>
-
 #include <frc/smartdashboard/SmartDashboard.h>
 
 void Robot::RobotInit() {
   m_chooser.SetDefaultOption(kAutoNameDefault, kAutoNameDefault);
   m_chooser.AddOption(kAutoNameCustom, kAutoNameCustom);
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+  frc::Color detectedColor = m_colorSensor.GetColor();m_colorMatcher.AddColorMatch(kBlueTarget);
 
-    frc::Color detectedColor = m_colorSensor.GetColor();m_colorMatcher.AddColorMatch(kBlueTarget);
+  m_colorMatcher.AddColorMatch(kGreenTarget);
+  m_colorMatcher.AddColorMatch(kRedTarget);
+  m_colorMatcher.AddColorMatch(kYellowTarget);
 
-    m_colorMatcher.AddColorMatch(kGreenTarget);
+  // ECODERS
+  shoot1->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
+  shoot1->ConfigPeakOutputForward(1);
+  shoot1->ConfigPeakOutputReverse(-1);
+  shoot1->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
+  shoot1->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+  shoot1->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+  shoot1->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+  shoot1->SetSensorPhase(false);
+  shoot1->SetInverted(false);
+  
+  shoot2->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
+  shoot2->ConfigPeakOutputForward(1);
+  shoot2->ConfigPeakOutputReverse(-1);
+  shoot2->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
+  shoot2->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+  shoot2->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+  shoot2->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+  shoot2->SetSensorPhase(false);
+  shoot2->SetInverted(false);
 
-    m_colorMatcher.AddColorMatch(kRedTarget);
+  climbPID.SetP(kPe);
+  climbPID.SetI(kI);
+  climbPID.SetD(kD);
+  climbPID.SetIZone(kIz);
+  climbPID.SetFF(kFF);
+  climbPID.SetOutputRange(kMinOutput, kMaxOutput);
 
-    m_colorMatcher.AddColorMatch(kYellowTarget);
-
-    // ECODERS
-    shoot1->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
-
-    shoot1->ConfigPeakOutputForward(1);
-    shoot1->ConfigPeakOutputReverse(-1);
-
-    shoot1->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
-    shoot1->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
-    shoot1->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-    shoot1->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
-
-    shoot1->SetSensorPhase(false);
-    shoot1->SetInverted(false);
-    
-    shoot2->ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor, 0, kTimeoutMs);
-
-    shoot2->ConfigPeakOutputForward(1);
-    shoot2->ConfigPeakOutputReverse(-1);
-
-    shoot2->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
-    shoot2->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
-    shoot2->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-    shoot2->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
-
-    shoot2->SetSensorPhase(false);
-    shoot2->SetInverted(false);
-
-    climbPID.SetP(kPe);
-    climbPID.SetI(kI);
-    climbPID.SetD(kD);
-    climbPID.SetIZone(kIz);
-    climbPID.SetFF(kFF);
-    climbPID.SetOutputRange(kMinOutput, kMaxOutput);
-
-    index->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, kTimeoutMs);
+  index->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, kTimeoutMs);
 }
 
 /**
