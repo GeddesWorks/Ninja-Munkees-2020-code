@@ -142,6 +142,7 @@ class Robot : public frc::TimedRobot {
 // Climber------------------
   rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANPIDController climbPID = climber.GetPIDController();
+  TalonSRX * barDrive = new TalonSRX(15);
 
   double pos;
   double posUp = 0;
@@ -166,7 +167,6 @@ class Robot : public frc::TimedRobot {
   frc::Spark LEDcontrol{0};
   bool canShoot;
 
-
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoNameDefault = "Default";
@@ -178,7 +178,4 @@ class Robot : public frc::TimedRobot {
   float Ld;
   float Rd;
 
- 
-
-  
 };

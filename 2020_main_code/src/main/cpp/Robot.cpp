@@ -293,6 +293,16 @@ void Robot::TeleopPeriodic() {
     }
     else{}
 
+    if(buttonBoard.GetRawButton(3)){
+      barDrive->Set(ControlMode::PercentOutput, -1);
+    }
+    else if(buttonBoard.GetRawButton(7)){
+      barDrive->Set(ControlMode::PercentOutput, 1);
+    }
+    else{
+      barDrive->Set(ControlMode::PercentOutput, 0);
+    }
+
     climbPID.SetReference(pos, rev::ControlType::kPosition);
   }
 
