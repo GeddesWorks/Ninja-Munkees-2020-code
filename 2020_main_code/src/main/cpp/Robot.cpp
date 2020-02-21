@@ -118,23 +118,142 @@ void Robot::TeleopPeriodic() {
     double confidence = 0.0;
     frc::Color detectedColor = m_colorSensor.GetColor();
     std::string colorString;
+    std::string seenColor;
     frc::Color matchedColor = m_colorMatcher.MatchClosestColor(detectedColor, confidence);
     
     
     if (matchedColor == kBlueTarget) {
-      colorString = "Blue";
-    } else if (matchedColor == kRedTarget) {
       colorString = "Red";
+      seenColor = "blue";
+    } else if (matchedColor == kRedTarget) {
+      colorString = "Blue";
+      seenColor = "red";
     } else if (matchedColor == kGreenTarget) {
-      colorString = "Green";
-    } else if (matchedColor == kYellowTarget) {
       colorString = "Yellow";
+      seenColor = "green";
+    } else if (matchedColor == kYellowTarget) {
+      colorString = "Green";
+      seenColor = "yellow";
     } else {
       colorString = "Unknown";
     }
 
-    frc::SmartDashboard::PutString("Detected color", colorString);
+    
 
+    std::string gameData;
+    gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+    if(gameData.length() > 0){
+      switch (gameData[0]){
+        case 'B' :
+          //Blue case code
+          break;
+        case 'G' :
+          //Green case code
+          break;
+        case 'R' :
+          //Red case code
+          break;
+        case 'Y' :
+          //Yellow case code
+          break;
+        default :
+          //This is corrupt data
+          break;
+      }
+    } 
+    else {
+      //Code for no data received yet
+    }
+    if(buttonBoard.GetRawButton(8)){
+      if(gameData == "G"){
+        // Checks green---------
+        if(colorString == "Green" || haveHitColor == true){ 
+          haveHitColor = true;
+          if(seenColor == "blue"){
+            barDrive->Set(ControlMode::PercentOutput, -.25);
+          }
+          else if(seenColor == "red"){
+            barDrive->Set(ControlMode::PercentOutput, .25);
+          }
+          else if(seenColor == "yellow"){
+            barDrive->Set(ControlMode::PercentOutput, 0);
+          }
+          else{
+            haveHitColor = false;
+          }
+        }
+        
+        else{
+          barDrive->Set(ControlMode::PercentOutput, -.75);
+        }
+      }
+
+      else if (gameData == "R"){
+        // Checks red---------
+        if(colorString == "Red" || haveHitColor == true){ 
+          haveHitColor = true;
+          if(seenColor == "green"){
+            barDrive->Set(ControlMode::PercentOutput, -.25);
+          }
+          else if(seenColor == "yellow"){
+            barDrive->Set(ControlMode::PercentOutput, .25);
+          }
+          else if(seenColor == "blue"){
+            barDrive->Set(ControlMode::PercentOutput, 0);
+          }
+          else{
+            haveHitColor = false;
+          }
+        }
+        else{
+          barDrive->Set(ControlMode::PercentOutput, -.75);
+        }
+      }
+      else if (gameData == "B"){
+        // Checks blue---------
+        if(colorString == "Blue" || haveHitColor == true){ 
+          haveHitColor = true;
+          if(seenColor == "yellow"){
+            barDrive->Set(ControlMode::PercentOutput, -.25);
+          }
+          else if(seenColor == "green"){
+            barDrive->Set(ControlMode::PercentOutput, .25);
+          }
+          else if(seenColor == "red"){
+            barDrive->Set(ControlMode::PercentOutput, 0);
+          }
+          else{
+            haveHitColor = false;
+          }
+        }
+        else{
+          barDrive->Set(ControlMode::PercentOutput, -.75);
+        }
+      }
+      else if (gameData == "Y"){
+        // Checks yellow---------
+        if(colorString == "Yellow" || haveHitColor == true){ 
+          haveHitColor = true;
+          if(seenColor == "red"){
+            barDrive->Set(ControlMode::PercentOutput, -.25);
+          }
+          else if(seenColor == "blue"){
+            barDrive->Set(ControlMode::PercentOutput, .25);
+          }
+          else if(seenColor == "green"){
+            barDrive->Set(ControlMode::PercentOutput, 0);
+          }
+          else{
+            haveHitColor = false;
+          }
+        }
+        else{
+          barDrive->Set(ControlMode::PercentOutput, -.75);
+        }
+      }
+    }
+    frc::SmartDashboard::PutString("Detected color", colorString);
+    frc::SmartDashboard::PutString("Target color", gameData);
   }
 
   void Robot::Intake() {
@@ -249,12 +368,6 @@ void Robot::TeleopPeriodic() {
 
 		shooterActualSpeed = shoot1->GetSelectedSensorVelocity();
     frc::SmartDashboard::PutNumber("Shooter Actual Speed", shooterActualSpeed);
-
-
-
-
-
-
 
     if(buttonBoard.GetRawButton(11)){
       shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 

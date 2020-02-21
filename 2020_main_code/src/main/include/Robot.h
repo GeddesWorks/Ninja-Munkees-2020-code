@@ -73,6 +73,7 @@ class Robot : public frc::TimedRobot {
   static constexpr frc::Color kGreenTarget = frc::Color(0.197, 0.561, 0.240);
   static constexpr frc::Color kRedTarget = frc::Color(0.561, 0.232, 0.114);
   static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
+  bool haveHitColor = false;
 
 
 // drive train setup
@@ -142,7 +143,7 @@ class Robot : public frc::TimedRobot {
 // Climber------------------
   rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANPIDController climbPID = climber.GetPIDController();
-  TalonSRX * barDrive = new TalonSRX(15);
+  TalonSRX * barDrive = new TalonSRX(15);  
 
   double pos;
   double posUp = 0;
