@@ -1,5 +1,4 @@
 
-
 #include "Robot.h"
 #include <iostream>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -35,14 +34,16 @@ void Robot::RobotInit() {
   shoot2->SetSensorPhase(false);
   shoot2->SetInverted(false);
 
-  climbPID.SetP(kPe);
+  /*climbPID.SetP(kPe);
   climbPID.SetI(kI);
   climbPID.SetD(kD);
   climbPID.SetIZone(kIz);
   climbPID.SetFF(kFF);
-  climbPID.SetOutputRange(kMinOutput, kMaxOutput);
+  climbPID.SetOutputRange(kMinOutput, kMaxOutput);*/
 
   index->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, kTimeoutMs);
+
+  T1.Start();
 }
 
 /**
@@ -84,6 +85,25 @@ void Robot::AutonomousPeriodic() {
     // Custom Auto goes here
   } else {
     // Default Auto goes here
+    shooterActualSpeed = shoot1->GetSelectedSensorVelocity();
+    shooterTargetSpeed = 100; //Replace this with real number
+
+    shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 
+    shoot2->Set(ControlMode::Velocity, shooterTargetSpeed * -1);
+    if(shooterActualSpeed < shooterTargetSpeed + shooterdeadzone && shooterActualSpeed > shooterTargetSpeed - shooterdeadzone){
+      shooterIsRunning = true;
+    }
+    else{
+      shooterIsRunning = false;
+    }
+
+    if (shooterIsRunning == true){
+      index->Set(ControlMode::Velocity, -1); 
+    }
+    else{
+      index->Set(ControlMode::Velocity, 0);
+    }
+
   }
 }
 
@@ -252,8 +272,30 @@ void Robot::TeleopPeriodic() {
         }
       }
     }
+    else{
+      barDrive->Set(ControlMode::PercentOutput, 0);
+    }
     frc::SmartDashboard::PutString("Detected color", colorString);
     frc::SmartDashboard::PutString("Target color", gameData);
+    frc::SmartDashboard::PutNumber("time", T1.Get());
+    if(T1.Get() == .15){
+      T1.Reset();
+      
+      if(seenColor == "yellow" && isYellow == false){
+        rotations += 1;
+        isYellow = true;
+      }
+      else if(seenColor != "yellow" && isYellow == true){
+        isYellow == false;
+      }
+    }
+    if(rot >= 8){
+      frc::SmartDashboard::PutBoolean("rotations", true);
+    }
+    else{
+      frc::SmartDashboard::PutBoolean("rotations", false);
+    }
+    
   }
 
   void Robot::Intake() {
@@ -325,7 +367,7 @@ void Robot::TeleopPeriodic() {
     }
 
     //m_left.Set(Ld);
-    //m_right.Set(Rd);
+   // m_right.Set(Rd * -1);
     //frontRightMotor2.Set(1);
 
     //Aiming-
@@ -352,27 +394,30 @@ void Robot::TeleopPeriodic() {
     if(tx < .1 && tx > -.1){
       aimed = true;
     }
+    else{
+      aimed = false;
+    }
     angleOfCameraFromTarget = targetOffsetAngle_Vertical;
     distanceFromTarget =  (hightOfTarget - hightOfCamera) / tan(angleOfCamera + angleOfCameraFromTarget);
 
     frc::SmartDashboard::PutNumber("Distance From Target", distanceFromTarget); 
-
   }
 
   void Robot::Shooter(){
-    /* get gamepad axis */
 
 		double leftYstick = JLeft.GetY();
-		double motorOutput = shoot1->GetMotorOutputPercent();
-    double motorOutput2 = shoot2->GetMotorOutputPercent();
+		//double motorOutput = shoot1->GetMotorOutputPercent();
+    //double motorOutput2 = shoot2->GetMotorOutputPercent();
 
 		shooterActualSpeed = shoot1->GetSelectedSensorVelocity();
     frc::SmartDashboard::PutNumber("Shooter Actual Speed", shooterActualSpeed);
 
+    shooterTargetSpeed = distanceFromTarget; // * some number;
+
     if(buttonBoard.GetRawButton(11)){
       shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 
       shoot2->Set(ControlMode::Velocity, shooterTargetSpeed * -1);
-      if(shooterActualSpeed < shooterTargetSpeed + 10 && shooterActualSpeed > shooterTargetSpeed - 10){
+      if(shooterActualSpeed < shooterTargetSpeed + shooterdeadzone && shooterActualSpeed > shooterTargetSpeed - shooterdeadzone){
         shooterIsRunning = true;
       }
       else{
@@ -381,7 +426,7 @@ void Robot::TeleopPeriodic() {
     }
     else{
       shoot1->Set(ControlMode::PercentOutput, .1); 
-      shoot2->Set(ControlMode::PercentOutput, .1 -1); 
+      shoot2->Set(ControlMode::PercentOutput, -.1); 
       shooterIsRunning = false;
     }
     frc::SmartDashboard::PutNumber("Shooter Target Speed", shooterTargetSpeed);
@@ -416,7 +461,7 @@ void Robot::TeleopPeriodic() {
       barDrive->Set(ControlMode::PercentOutput, 0);
     }
 
-    climbPID.SetReference(pos, rev::ControlType::kPosition);
+    //climbPID.SetReference(pos, rev::ControlType::kPosition);
   }
 
   void Robot::Index(){

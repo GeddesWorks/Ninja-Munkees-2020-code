@@ -1,10 +1,3 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2017-2018 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 #pragma once
 
 #include "frc/WPILib.h"
@@ -19,9 +12,7 @@
 #include <wpi/raw_ostream.h>
 #include <frc/encoder.h>
 #include <frc/TimedRobot.h>
-#include <frc/DoubleSolenoid.h>
 #include <frc/Joystick.h>
-#include <frc/Solenoid.h>
 
 #include <frc/util/color.h>
 #include "rev/ColorSensorV3.h"
@@ -35,6 +26,7 @@
 #include <frc/Talon.h>
 #include "rev/CANSparkMax.h"
 #include "ctre/Phoenix.h"
+#include <frc/timer.h>
 
 
 class Robot : public frc::TimedRobot {
@@ -74,17 +66,19 @@ class Robot : public frc::TimedRobot {
   static constexpr frc::Color kRedTarget = frc::Color(0.561, 0.232, 0.114);
   static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
   bool haveHitColor = false;
-
-
+  frc::Timer T1;
+  int rotations = 0;
+  bool rot;
+  bool isYellow = false;
 // drive train setup
 
   float deadZone = .25;
  
-  //rev::CANSparkMax frontLeftMotor1{1, rev::CANSparkMax::MotorType::kBrushless};
-  //rev::CANSparkMax frontLeftMotor2{2, rev::CANSparkMax::MotorType::kBrushless};
-  //rev::CANSparkMax frontRightMotor1{3, rev::CANSparkMax::MotorType::kBrushless};
-  //rev::CANSparkMax frontRightMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
-  /*rev::CANSparkMax rearLeftMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
+  /*rev::CANSparkMax frontLeftMotor1{1, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontLeftMotor2{2, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontRightMotor1{3, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontRightMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax rearLeftMotor1{5, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax rearLeftMotor2{6, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax rearRightMotor1{7, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax rearRightMotor2{8, rev::CANSparkMax::MotorType::kBrushless};
@@ -97,7 +91,7 @@ class Robot : public frc::TimedRobot {
 
   frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
   frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
-*/
+  */
 
 // Aiming------------------
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
@@ -110,11 +104,13 @@ class Robot : public frc::TimedRobot {
   double hightOfCamera = 0000;
   double angleOfCamera = 0000;
   double angleOfCameraFromTarget;
+  
  // Talon encoder shooter-----------
   TalonFX * shoot1 = new TalonFX(9);
   TalonFX * shoot2 = new TalonFX(12);
   double speed = .10;
   double Ospeed;
+  const float shooterdeadzone = 10;
 
   double shooterTargetSpeed;
   double shooterActualSpeed;
@@ -141,8 +137,8 @@ class Robot : public frc::TimedRobot {
   bool buttonPressed = false; //Toggles intake on(true) & off(false)
   
 // Climber------------------
-  rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANPIDController climbPID = climber.GetPIDController();
+  //rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
+  //rev::CANPIDController climbPID = climber.GetPIDController();
   TalonSRX * barDrive = new TalonSRX(15);  
 
   double pos;
@@ -168,6 +164,7 @@ class Robot : public frc::TimedRobot {
   frc::Spark LEDcontrol{0};
   bool canShoot;
 
+
  private:
   frc::SendableChooser<std::string> m_chooser;
   const std::string kAutoNameDefault = "Default";
@@ -179,4 +176,7 @@ class Robot : public frc::TimedRobot {
   float Ld;
   float Rd;
 
+ 
+
+  
 };
