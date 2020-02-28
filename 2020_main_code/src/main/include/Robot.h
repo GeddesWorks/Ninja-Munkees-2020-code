@@ -56,6 +56,7 @@ class Robot : public frc::TimedRobot {
   frc::Joystick buttonBoard{2};
   frc::DigitalInput upSwitch{1};
   frc::DigitalInput downSwitch{2};
+  frc::DigitalInput ballSwitch{4};
   
   static constexpr auto i2cPort = frc::I2C::Port::kOnboard;
   rev::ColorSensorV3 m_colorSensor{i2cPort};
@@ -67,6 +68,7 @@ class Robot : public frc::TimedRobot {
   static constexpr frc::Color kYellowTarget = frc::Color(0.361, 0.524, 0.113);
   bool haveHitColor = false;
   frc::Timer T1;
+  frc::Timer T2;
   int rotations = 0;
   bool rot;
   bool isYellow = false;
@@ -134,6 +136,7 @@ class Robot : public frc::TimedRobot {
 // Intake-------------------
   VictorSPX * intakeMove = new VictorSPX(10);
   TalonSRX * intakeRun = new TalonSRX(13);
+  TalonSRX * ballUp = new TalonSRX(18);
   bool buttonPressed = false; //Toggles intake on(true) & off(false)
   
 // Climber------------------
@@ -158,7 +161,7 @@ class Robot : public frc::TimedRobot {
   double indexDirection = 0;
   bool intakeIsRunning;
   bool shooterIsRunning;
-  double indexShift = 405;
+  bool indexShift = false;
 
 // LED Set-up
   frc::Spark LEDcontrol{0};

@@ -44,6 +44,7 @@ void Robot::RobotInit() {
   index->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, kTimeoutMs);
 
   T1.Start();
+  T2.Start();
 }
 
 /**
@@ -122,7 +123,7 @@ void Robot::TeleopPeriodic() {
   LED();
   Testing();
 
- 
+ frc::SmartDashboard::PutBoolean("ballIn", ballSwitch.Get());
 /*frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
   frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("rearRightEncoder", rearRightEncoder.GetPosition());
@@ -289,7 +290,7 @@ void Robot::TeleopPeriodic() {
         isYellow == false;
       }
     }
-    if(rot >= 8){
+    if(rotations >= 8){
       frc::SmartDashboard::PutBoolean("rotations", true);
     }
     else{
@@ -467,12 +468,21 @@ void Robot::TeleopPeriodic() {
   void Robot::Index(){
     if (buttonBoard.GetRawButton(11) && shooterIsRunning == true){
       index->Set(ControlMode::Velocity, -1); 
+      ballUp->Set(ControlMode::Velocity, -1); 
     }
     else if(buttonBoard.GetRawButton(4)){
-      index->Set(ControlMode::Position, index->GetSelectedSensorPosition() + indexShift);
+      T2.Reset();
+      indexShift = true;
+    }
+    else if(indexShift == false){
+      index->Set(ControlMode::Velocity, 0);
+    }
+
+    if (indexShift == true && T2 <= 2){
+      index->Set(ControlMode::Velocity, 1); 
     }
     else{
-      index->Set(ControlMode::Velocity, 0);
+      indexShift = false;
     }
     
   }
