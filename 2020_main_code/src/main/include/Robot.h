@@ -54,6 +54,7 @@ class Robot : public frc::TimedRobot {
   frc::Joystick JLeft{0};
   frc::Joystick JRight{1};
   frc::Joystick buttonBoard{2};
+  frc::Joystick testJ{3};
   frc::DigitalInput upSwitch{1};
   frc::DigitalInput downSwitch{2};
   frc::DigitalInput ballSwitch{4};
@@ -76,7 +77,7 @@ class Robot : public frc::TimedRobot {
 
   float deadZone = .25;
  
-  /*rev::CANSparkMax frontLeftMotor1{1, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax frontLeftMotor1{1, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax frontLeftMotor2{2, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax frontRightMotor1{3, rev::CANSparkMax::MotorType::kBrushless};
   rev::CANSparkMax frontRightMotor2{4, rev::CANSparkMax::MotorType::kBrushless};
@@ -93,7 +94,7 @@ class Robot : public frc::TimedRobot {
 
   frc::SpeedControllerGroup m_left{frontLeftMotor1, frontLeftMotor2, rearLeftMotor1, rearLeftMotor2};
   frc::SpeedControllerGroup m_right{frontRightMotor1, frontRightMotor2, rearRightMotor1, rearRightMotor2};
-  */
+  
 
 // Aiming------------------
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
@@ -140,8 +141,9 @@ class Robot : public frc::TimedRobot {
   bool buttonPressed = false; //Toggles intake on(true) & off(false)
   
 // Climber------------------
-  //rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
-  //rev::CANPIDController climbPID = climber.GetPIDController();
+  rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANEncoder climbEnc = climber.GetEncoder();
+  rev::CANPIDController climbPID = climber.GetPIDController();
   TalonSRX * barDrive = new TalonSRX(15);  
 
   double pos;

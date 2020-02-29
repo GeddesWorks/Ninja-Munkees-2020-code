@@ -34,12 +34,12 @@ void Robot::RobotInit() {
   shoot2->SetSensorPhase(false);
   shoot2->SetInverted(false);
 
-  /*climbPID.SetP(kPe);
+  climbPID.SetP(kPe);
   climbPID.SetI(kI);
   climbPID.SetD(kD);
   climbPID.SetIZone(kIz);
   climbPID.SetFF(kFF);
-  climbPID.SetOutputRange(kMinOutput, kMaxOutput);*/
+  climbPID.SetOutputRange(kMinOutput, kMaxOutput);
 
   index->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder, 0, kTimeoutMs);
 
@@ -123,12 +123,13 @@ void Robot::TeleopPeriodic() {
   LED();
   Testing();
 
- frc::SmartDashboard::PutBoolean("ballIn", ballSwitch.Get());
-/*frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
-  frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetPosition());
-  frc::SmartDashboard::PutNumber("rearRightEncoder", rearRightEncoder.GetPosition());
-  frc::SmartDashboard::PutNumber("rearLeftEncoder", rearLeftEncoder.GetPosition());
-*/
+  frc::SmartDashboard::PutBoolean("ballIn", ballSwitch.Get());
+  frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
+  frc::SmartDashboard::PutNumber("frontLeftEncoder", frontLeftEncoder.GetVelocity());
+  frc::SmartDashboard::PutNumber("rearRightEncoder", rearRightEncoder.GetVelocity());
+  frc::SmartDashboard::PutNumber("rearLeftEncoder", rearLeftEncoder.GetVelocity());
+  frc::SmartDashboard::PutNumber("climber", climbEnc.GetPosition());
+
 
   std::shared_ptr<NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
   double targetArea = table->GetNumber("ta",0.0);
@@ -367,8 +368,8 @@ void Robot::TeleopPeriodic() {
       }
     }
 
-    //m_left.Set(Ld);
-   // m_right.Set(Rd * -1);
+    m_left.Set(Ld);
+    m_right.Set(Rd * -1);
     //frontRightMotor2.Set(1);
 
     //Aiming-
@@ -452,7 +453,7 @@ void Robot::TeleopPeriodic() {
     }
     else{}
 
-    if(buttonBoard.GetRawButton(3)){
+    /*if(buttonBoard.GetRawButton(3)){
       barDrive->Set(ControlMode::PercentOutput, -1);
     }
     else if(buttonBoard.GetRawButton(7)){
@@ -460,9 +461,11 @@ void Robot::TeleopPeriodic() {
     }
     else{
       barDrive->Set(ControlMode::PercentOutput, 0);
-    }
+    }*/
 
     //climbPID.SetReference(pos, rev::ControlType::kPosition);
+    
+    climber.Set(testJ.GetY());
   }
 
   void Robot::Index(){
@@ -478,7 +481,7 @@ void Robot::TeleopPeriodic() {
       index->Set(ControlMode::Velocity, 0);
     }
 
-    if (indexShift == true && T2 <= 2){
+    if (indexShift == true && T2.Get() <= 2){
       index->Set(ControlMode::Velocity, 1); 
     }
     else{
