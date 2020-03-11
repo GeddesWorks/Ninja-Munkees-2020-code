@@ -499,7 +499,7 @@ void Robot::TeleopPeriodic() {
       
     }
     else if(indexShift == false && buttonBoard.GetRawButton(11) == false){
-      index->Set(ControlMode::PercentOutput, 0);
+      index->Set(ControlMode::PercentOutput, 0); // 0
       
     }
     else{
