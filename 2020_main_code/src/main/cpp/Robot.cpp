@@ -87,7 +87,7 @@ void Robot::AutonomousPeriodic() {
   } else {
     // Default Auto goes here
     shooterActualSpeed = shoot1->GetSelectedSensorVelocity();
-    shooterTargetSpeed = 100; //Replace this with real number
+    shooterTargetSpeed = 4500; //Replace this with real number
 
     shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 
     shoot2->Set(ControlMode::Velocity, shooterTargetSpeed * -1);
@@ -104,7 +104,7 @@ void Robot::AutonomousPeriodic() {
     else{
       index->Set(ControlMode::Velocity, 0);
     }
-
+    
   }
 }
 
@@ -121,7 +121,7 @@ void Robot::TeleopPeriodic() {
   Climber();
   Index();
   LED();
-  Testing();
+  //Testing();
 
   frc::SmartDashboard::PutBoolean("ballIn", ballSwitch.Get());
   frc::SmartDashboard::PutNumber("frontRightEncoder", frontRightEncoder.GetVelocity());
@@ -280,7 +280,7 @@ void Robot::TeleopPeriodic() {
     frc::SmartDashboard::PutString("Detected color", colorString);
     frc::SmartDashboard::PutString("Target color", gameData);
     frc::SmartDashboard::PutNumber("time", T1.Get());
-    if(T1.Get() == .15){
+    /*if(T1.Get() == .15){
       T1.Reset();
       
       if(seenColor == "yellow" && isYellow == false){
@@ -296,8 +296,7 @@ void Robot::TeleopPeriodic() {
     }
     else{
       frc::SmartDashboard::PutBoolean("rotations", false);
-    }
-    
+    }*/
   }
 
   void Robot::Intake() {
@@ -318,25 +317,32 @@ void Robot::TeleopPeriodic() {
     // downSwitch = 1 when intake is down
 
     if(buttonBoard.GetRawButton(1) == 1 && up == false){
-      intakeMove->Set(ControlMode::PercentOutput, .5);
+      intakeMove->Set(ControlMode::PercentOutput, -.6);
     }
     else if(buttonBoard.GetRawButton(5) == 1 && down == false){
-      intakeMove->Set(ControlMode::PercentOutput, -.5);
+      intakeMove->Set(ControlMode::PercentOutput, .2);
     }
     else{
       intakeMove->Set(ControlMode::PercentOutput, 0);
     }
-
+    
     if(buttonBoard.GetRawButton(9)){  //Has intake button been pushed?
-      if(buttonPressed == false){ //Turns on intake
-        intakeRun->Set(ControlMode::PercentOutput, 1);
+      if(buttonPressed == false){
         buttonPressed = true;
-      } //if(buttonPressed == false)
-      else if(buttonPressed == true){ //Turns off intake
-        intakeRun->Set(ControlMode::PercentOutput, 0);
-        buttonPressed = false;
-      } //if else(buttonPressed == true)
-    } //if(buttonBoard.GetRawButton(9))
+        if(isRun == false){
+          intakeRun->Set(ControlMode::PercentOutput, -1);
+          isRun = true;
+        }
+        else{
+          isRun = false;
+          intakeRun->Set(ControlMode::PercentOutput, 0);
+        }
+      } 
+      
+    } 
+    else{
+      buttonPressed = false;
+    }
   }
 
   void Robot::Drive() {
@@ -368,9 +374,7 @@ void Robot::TeleopPeriodic() {
       }
     }
 
-    m_left.Set(Ld);
-    m_right.Set(Rd * -1);
-    //frontRightMotor2.Set(1);
+    
 
     //Aiming-
     std::shared_ptr<NetworkTable> table = NetworkTable::GetTable("limelight");
@@ -399,27 +403,43 @@ void Robot::TeleopPeriodic() {
     else{
       aimed = false;
     }
+
     angleOfCameraFromTarget = targetOffsetAngle_Vertical;
-    distanceFromTarget =  (hightOfTarget - hightOfCamera) / tan(angleOfCamera + angleOfCameraFromTarget);
+    distanceFromTarget = 500; // (hightOfTarget - hightOfCamera) / tan(angleOfCamera + angleOfCameraFromTarget);
 
     frc::SmartDashboard::PutNumber("Distance From Target", distanceFromTarget); 
+
+    if(JLeft.GetRawButton(1) == 1){
+      Ld = Ld;
+    }
+    else{
+      Ld = Ld * .5;
+    }
+    if(JRight.GetRawButton(1) == 1){
+      Rd = Rd;
+    }
+    else{
+      Rd = Rd * .5;
+    }
+
+
+    m_left.Set(Ld * -1);
+    m_right.Set(Rd);
   }
 
   void Robot::Shooter(){
 
 		double leftYstick = JLeft.GetY();
-		//double motorOutput = shoot1->GetMotorOutputPercent();
-    //double motorOutput2 = shoot2->GetMotorOutputPercent();
 
 		shooterActualSpeed = shoot1->GetSelectedSensorVelocity();
     frc::SmartDashboard::PutNumber("Shooter Actual Speed", shooterActualSpeed);
 
-    shooterTargetSpeed = distanceFromTarget; // * some number;
+    shooterTargetSpeed = 14000; //distanceFromTarget; // * some number;
 
     if(buttonBoard.GetRawButton(11)){
       shoot1->Set(ControlMode::Velocity, shooterTargetSpeed); 
       shoot2->Set(ControlMode::Velocity, shooterTargetSpeed * -1);
-      if(shooterActualSpeed < shooterTargetSpeed + shooterdeadzone && shooterActualSpeed > shooterTargetSpeed - shooterdeadzone){
+      if(shooterActualSpeed < (shooterTargetSpeed + shooterdeadzone) && shooterActualSpeed > (shooterTargetSpeed - shooterdeadzone)){
         shooterIsRunning = true;
       }
       else{
@@ -427,8 +447,8 @@ void Robot::TeleopPeriodic() {
       }
     }
     else{
-      shoot1->Set(ControlMode::PercentOutput, .1); 
-      shoot2->Set(ControlMode::PercentOutput, -.1); 
+      shoot1->Set(ControlMode::Velocity, 0); 
+      shoot2->Set(ControlMode::Velocity, 0); 
       shooterIsRunning = false;
     }
     frc::SmartDashboard::PutNumber("Shooter Target Speed", shooterTargetSpeed);
@@ -453,7 +473,7 @@ void Robot::TeleopPeriodic() {
     }
     else{}
 
-    /*if(buttonBoard.GetRawButton(3)){
+    if(buttonBoard.GetRawButton(3)){
       barDrive->Set(ControlMode::PercentOutput, -1);
     }
     else if(buttonBoard.GetRawButton(7)){
@@ -461,7 +481,7 @@ void Robot::TeleopPeriodic() {
     }
     else{
       barDrive->Set(ControlMode::PercentOutput, 0);
-    }*/
+    }
 
     //climbPID.SetReference(pos, rev::ControlType::kPosition);
     
@@ -470,23 +490,29 @@ void Robot::TeleopPeriodic() {
 
   void Robot::Index(){
     if (buttonBoard.GetRawButton(11) && shooterIsRunning == true){
-      index->Set(ControlMode::Velocity, -1); 
-      ballUp->Set(ControlMode::Velocity, -1); 
+      index->Set(ControlMode::PercentOutput, -.5); 
+      ballUp->Set(ControlMode::PercentOutput, 1); 
     }
     else if(buttonBoard.GetRawButton(4)){
       T2.Reset();
       indexShift = true;
+      
     }
-    else if(indexShift == false){
-      index->Set(ControlMode::Velocity, 0);
+    else if(indexShift == false && buttonBoard.GetRawButton(11) == false){
+      index->Set(ControlMode::PercentOutput, 0);
+      
+    }
+    else{
+      ballUp->Set(ControlMode::PercentOutput, 0); 
     }
 
-    if (indexShift == true && T2.Get() <= 2){
-      index->Set(ControlMode::Velocity, 1); 
+    if (indexShift == true && T2.Get() <= .20){
+      index->Set(ControlMode::PercentOutput, -.5); 
     }
     else{
       indexShift = false;
     }
+
     
   }
 
@@ -504,13 +530,39 @@ void Robot::TeleopPeriodic() {
   }
 
   void Robot::Testing(){
-  speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 10);
-  Ospeed = speed / 100;
-  shoot1->Set(ControlMode::PercentOutput, Ospeed);
-  shoot2->Set(ControlMode::PercentOutput, Ospeed * -1);
+    speed = frc::SmartDashboard::GetNumber("DB/Slider 0", 0);
+    Ospeed = speed / 100;
+    
+
+    if(buttonBoard.GetRawButton(11)){
+        shoot1->Set(ControlMode::PercentOutput, Ospeed);
+        shoot2->Set(ControlMode::PercentOutput, Ospeed * -1);
+        ballUp->Set(ControlMode::PercentOutput, 1);
+        if(shooterActualSpeed < shooterTargetSpeed + shooterdeadzone && shooterActualSpeed > shooterTargetSpeed - shooterdeadzone){
+          shooterIsRunning = true;
+        }
+        else{
+          shooterIsRunning = false;
+        }
+      }
+      else{
+        shoot1->Set(ControlMode::Velocity, 0); 
+        shoot2->Set(ControlMode::Velocity, 0); 
+        shooterIsRunning = false;
+        ballUp->Set(ControlMode::PercentOutput, 0);
+      }
+      frc::SmartDashboard::PutNumber("Shooter Target Speed", shooterTargetSpeed);
+      if(shooterIsRunning == true){
+        frc::SmartDashboard::PutBoolean("Shooter Is Shooting", true);
+      }
+      else{
+        frc::SmartDashboard::PutBoolean("Shooter Is Shooting", false);
+      }
   }
 
-void Robot::TestPeriodic() {}
+void Robot::TestPeriodic() {
+  
+}
 
 #ifndef RUNNING_FRC_TESTS
 int main() { return frc::StartRobot<Robot>(); }

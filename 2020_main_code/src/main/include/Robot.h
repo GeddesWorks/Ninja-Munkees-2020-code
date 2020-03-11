@@ -102,16 +102,16 @@ class Robot : public frc::TimedRobot {
   float Kp = -0.1f;
   float min_command = 0.05f;
   bool aimed;
-  double distanceFromTarget;
-  double hightOfTarget = 0000;
-  double hightOfCamera = 0000;
-  double angleOfCamera = 0000;
-  double angleOfCameraFromTarget;
+  float distanceFromTarget;
+  float hightOfTarget = 7.5623;
+  float hightOfCamera = 0.8645833;
+  float angleOfCamera = 122;
+  float angleOfCameraFromTarget;
   
  // Talon encoder shooter-----------
   TalonFX * shoot1 = new TalonFX(9);
   TalonFX * shoot2 = new TalonFX(12);
-  double speed = .10;
+  double speed;
   double Ospeed;
   const float shooterdeadzone = 10;
 
@@ -139,6 +139,7 @@ class Robot : public frc::TimedRobot {
   TalonSRX * intakeRun = new TalonSRX(13);
   TalonSRX * ballUp = new TalonSRX(18);
   bool buttonPressed = false; //Toggles intake on(true) & off(false)
+  bool isRun = false;
   
 // Climber------------------
   rev::CANSparkMax climber{14, rev::CANSparkMax::MotorType::kBrushless};
@@ -164,6 +165,9 @@ class Robot : public frc::TimedRobot {
   bool intakeIsRunning;
   bool shooterIsRunning;
   bool indexShift = false;
+  bool button2Pressed = false;
+  bool is2Run = false;
+  bool IndexRun = false;
 
 // LED Set-up
   frc::Spark LEDcontrol{0};
